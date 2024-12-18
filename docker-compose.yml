@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  la_grosse_db:
+    image: mysql:8.0
+    container_name: la_grosse_db
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: soupa_db
+    volumes:
+      - ./seed.sql:/docker-entrypoint-initdb.d/seed.sql
+    ports:
+      - "3307:3306"
+
+  
+  web:
+    build: .
+    container_name: flask_web_app
+    environment:
+      FLASK_APP: main.py
+      FLASK_ENV: development
+    volumes:
+      - .:/app 
+    ports:
+      - "8888:8888"
+    depends_on:
+      - la_grosse_db
+
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin
+    environment:
+      PMA_HOST: la_grosse_db
+      PMA_PORT: 3306
+    ports:
+      - "8080:80"
+    depends_on:
+      - la_grosse_db
